@@ -1,0 +1,22 @@
+{
+  parserClass="com.epam.jugroote.plugin.parser.GroovyHtmlParser"
+
+  extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+  psiClassPrefix="Ghtml"
+  psiImplClassSuffix="Impl"
+  psiPackage="com.epam.jugroote.plugin.psi"
+  psiImplPackage="com.epam.jugroote.plugin.psi.impl"
+
+  elementTypeHolderClass="com.epam.jugroote.plugin.psi.GroovyHtmlTypes"
+  elementTypeClass="com.epam.jugroote.plugin.psi.GroovyHtmlElementType"
+  tokenTypeClass="com.epam.jugroote.plugin.psi.GroovyHtmlTokenType"
+
+  psiImplUtilClass="com.epam.jugroote.plugin.psi.impl.GroovyHtmlPsiImplUtil"
+}
+
+simpleFile ::= item_*
+
+private item_ ::= (property|COMMENT|CRLF)
+
+property ::= (KEY? SEPARATOR VALUE?) | KEY

@@ -11,8 +11,4 @@ public class GroovyHtmlTokenType extends IElementType {
         super(debugName, GroovyHtmlLanguage.INSTANCE);
     }
 
-    @Override
-    public String toString() {
-        return "GroovyHtmlTokenType." + super.toString();
-    }
 }

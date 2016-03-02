@@ -15,6 +15,7 @@
 
 package com.epam.jugroote.plugin.lexers;
 
+import com.epam.jugroote.plugin.parser.GroovyHtmlTokenTypes;
 import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.TokenType;
 import com.intellij.psi.tree.IElementType;
@@ -185,6 +186,19 @@ mGSTRING_LITERAL = \"\"
     | \"\"\" {mGSTRING_TRIPLE_CTOR_END}
 
 
+CloseTag = "</" {mIDENT} {WHITE_SPACE}* ">"
+OpenTagStart = "<" {mIDENT}
+OpenTagClose = "/>"
+OpenTagEnd = ">"
+
+/* attribute */
+Attribute = {mIDENT} "="
+
+/* string and character literals */
+DQuoteStringChar = [^\r\n\"]
+SQuoteStringChar = [^\r\n\']
+
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////  states ///////////////////////////////////////////////////////////////////////////////////////////
@@ -211,6 +225,8 @@ mGSTRING_LITERAL = \"\"
 %xstate IN_DOLLAR_SLASH_REGEX
 %xstate IN_DOLLAR_SLASH_REGEX_IDENT
 %xstate IN_DOLLAR_SLASH_REGEX_DOT
+
+%xstate TAG
 
 // Not to separate NewLine sequence by comments
 %xstate NLS_AFTER_COMMENT
@@ -484,6 +500,23 @@ mGSTRING_LITERAL = \"\"
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////  regexes //////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+<TAG> {
+  {WHITE_SPACE}                  {}
+
+  {Attribute}                    { return GroovyHtmlTokenTypes.TAG_ATTRIBUTE; }
+
+  \"{DQuoteStringChar}*\"        |
+  \'{SQuoteStringChar}*\'        { return GroovyHtmlTokenTypes.ATTRIBUTE_VALUE; }
+
+
+  {OpenTagClose}                 {   yybegin(YYINITIAL);
+                                         return GroovyHtmlTokenTypes.TAG_CLOSE; }
+
+  {OpenTagEnd}                   {   yybegin(YYINITIAL);
+                                         return GroovyHtmlTokenTypes.TAG_END; }
+  [^]                            {}
+}
 
 <WAIT_FOR_REGEX> {
 
@@ -845,6 +878,11 @@ mGSTRING_LITERAL = \"\"
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////      identifiers      ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+{OpenTagStart}                            {   yybegin(TAG);
+                                              return GroovyHtmlTokenTypes.TAG_START;  }
+
+{CloseTag}                                {   return GroovyHtmlTokenTypes.TAG_SELF_CLOSE;  }
 
 {mIDENT}                                  {   return GroovyTokenTypes.mIDENT; }
 

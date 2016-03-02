@@ -26,9 +26,14 @@
   -->
 
   <extensions defaultExtensionNs="com.intellij">
+    <!--<additionalTextAttributes scheme="Default" file="colorSchemes/GroovyDefault.xml"/>-->
+    <!--<additionalTextAttributes scheme="Darcula" file="colorSchemes/GroovyDarcula.xml"/>-->
     <!-- Add your extensions here -->
     <fileTypeFactory implementation="com.epam.jugroote.plugin.GroovyHtmlFileTypeFactory"/>
     <lang.parserDefinition language="ghtml" implementationClass="com.epam.jugroote.plugin.parser.GroovyHtmlParserDefinition"/>
+    <lang.syntaxHighlighterFactory language="ghtml"
+            implementationClass="com.epam.jugroote.plugin.highlighter.GroovyHtmlSyntaxHighlighterFactory"/>
+    <colorSettingsPage implementation="org.jetbrains.plugins.groovy.highlighter.GroovyColorsAndFontsPage"/>
 
   </extensions>
 

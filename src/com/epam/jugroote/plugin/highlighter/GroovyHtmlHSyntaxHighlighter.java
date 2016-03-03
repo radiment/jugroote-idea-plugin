@@ -1,26 +1,22 @@
 package com.epam.jugroote.plugin.highlighter;
 
 import com.epam.jugroote.plugin.lexers.GroovyHtmlLexerAdapter;
-import com.epam.jugroote.plugin.parser.GroovyHtmlTokenTypes;
+import com.intellij.ide.highlighter.XmlFileHighlighter;
 import com.intellij.lexer.Lexer;
-import com.intellij.openapi.editor.XmlHighlighterColors;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
+import com.intellij.openapi.fileTypes.SyntaxHighlighterBase;
 import com.intellij.psi.tree.IElementType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.groovy.highlighter.GroovySyntaxHighlighter;
 
-import java.util.HashMap;
-import java.util.Map;
+public class GroovyHtmlHSyntaxHighlighter extends SyntaxHighlighterBase {
 
-public class GroovyHtmlHSyntaxHighlighter extends GroovySyntaxHighlighter {
+    private XmlFileHighlighter xmlHighlighter;
+    private GroovySyntaxHighlighter groovyHighlighter;
 
-    public static final TextAttributesKey TAG = TextAttributesKey.createTextAttributesKey("TAG",
-            XmlHighlighterColors.XML_TAG);
-
-    private static final Map<IElementType, TextAttributesKey> MARKUP = new HashMap<IElementType, TextAttributesKey>();
-
-    static {
-        fillMap(MARKUP, TAG, GroovyHtmlTokenTypes.TAG_START);
+    public GroovyHtmlHSyntaxHighlighter() {
+        xmlHighlighter = new XmlFileHighlighter();
+        groovyHighlighter = new GroovySyntaxHighlighter();
     }
 
     @NotNull
@@ -32,7 +28,7 @@ public class GroovyHtmlHSyntaxHighlighter extends GroovySyntaxHighlighter {
     @NotNull
     @Override
     public TextAttributesKey[] getTokenHighlights(IElementType type) {
-        TextAttributesKey result = MARKUP.get(type);
-        return result != null ? pack(result) : super.getTokenHighlights(type);
+        TextAttributesKey[] result = xmlHighlighter.getTokenHighlights(type);
+        return result != SyntaxHighlighterBase.EMPTY ? result : groovyHighlighter.getTokenHighlights(type);
     }
 }

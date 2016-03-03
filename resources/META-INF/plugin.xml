@@ -34,6 +34,8 @@
     <lang.syntaxHighlighterFactory language="ghtml"
             implementationClass="com.epam.jugroote.plugin.highlighter.GroovyHtmlSyntaxHighlighterFactory"/>
     <colorSettingsPage implementation="org.jetbrains.plugins.groovy.highlighter.GroovyColorsAndFontsPage"/>
+    <lang.findUsagesProvider language="ghtml"
+                             implementationClass="org.jetbrains.plugins.groovy.findUsages.GroovyFindUsagesProvider"/>
 
   </extensions>
 

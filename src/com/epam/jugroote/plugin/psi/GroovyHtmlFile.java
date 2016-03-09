@@ -43,7 +43,7 @@ public class GroovyHtmlFile extends GroovyFileBaseImpl implements GroovyFile {
 
     @Override
     public String toString() {
-        return "Simple File";
+        return "GroovyHtmlFile:" + getName();
     }
 
     @Override
@@ -53,7 +53,17 @@ public class GroovyHtmlFile extends GroovyFileBaseImpl implements GroovyFile {
 
     @Override
     public GrImportStatement[] getImportStatements() {
-        return new GrImportStatement[0];
+        final StubElement<?> stub = getStub();
+        if (stub != null) {
+            return stub.getChildrenByType(GroovyElementTypes.IMPORT_STATEMENT, GrImportStatement.ARRAY_FACTORY);
+        }
+
+        return calcTreeElement().getChildrenAsPsiElements(GroovyElementTypes.IMPORT_STATEMENT, GrImportStatement.ARRAY_FACTORY);
+    }
+
+    @Override
+    public boolean isTopControlFlowOwner() {
+        return true;
     }
 
     @Nullable

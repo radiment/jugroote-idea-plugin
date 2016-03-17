@@ -6,5 +6,5 @@ import org.jetbrains.plugins.groovy.lang.parser.GroovyElementTypes;
 
 public interface GroovyHtmlTypes extends GroovyElementTypes {
 
-    GroovyHtmlElementType TAG = new GroovyHtmlElementType("tag");
+    GroovyHtmlElementType TEMPLATE = new GroovyHtmlElementType("TEMPLATE");
 }

@@ -26,7 +26,7 @@ import org.jetbrains.plugins.groovy.lang.groovydoc.parser.GroovyDocElementTypes;
 
 %%
 
-%class GroovyHtmlLexer
+%class GroovyHtmlFlexLexer
 %implements FlexLexer
 %unicode
 %public
@@ -252,56 +252,60 @@ PUBLIC= (P|p)(U|u)(B|b)(L|l)(I|i)(C|c)
 %state BRACE_COUNT
 
 %%
-<YYINITIAL> "<?" { yybegin(PROCESSING_INSTRUCTION); return XmlTokenType.XML_PI_START; }
-<PROCESSING_INSTRUCTION> "?"? ">" { yybegin(YYINITIAL); return XmlTokenType.XML_PI_END; }
-<PROCESSING_INSTRUCTION> ([^\?\>] | (\?[^\>]))* { return XmlTokenType.XML_PI_TARGET; }
+<YYINITIAL> "<?" { yybegin(PROCESSING_INSTRUCTION); }
+<PROCESSING_INSTRUCTION> .* ">" { yybegin(YYINITIAL); return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
 
-<YYINITIAL> {DOCTYPE} { yybegin(DOC_TYPE); return XmlTokenType.XML_DOCTYPE_START; }
-<DOC_TYPE> {HTML} { return XmlTokenType.XML_NAME; }
-<DOC_TYPE> {PUBLIC} { return XmlTokenType.XML_DOCTYPE_PUBLIC; }
-<DOC_TYPE> {DTD_REF} { return XmlTokenType.XML_ATTRIBUTE_VALUE_TOKEN;}
-<DOC_TYPE> ">" { yybegin(YYINITIAL); return XmlTokenType.XML_DOCTYPE_END; }
+<YYINITIAL> {DOCTYPE} { yybegin(DOC_TYPE); return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
+<DOC_TYPE> {HTML} { return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
+<DOC_TYPE> {PUBLIC} { return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
+<DOC_TYPE> {DTD_REF} { return GroovyHtmlTokenTypes.TEMPLATE_TEXT;}
+<DOC_TYPE> ">" { yybegin(YYINITIAL); return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
 
-<DOC_TYPE,TAG_ATTRIBUTES,ATTRIBUTE_VALUE_START,PROCESSING_INSTRUCTION, START_TAG_NAME, END_TAG_NAME, END_TAG_NAME2, TAG_CHARACTERS> {WHITE_SPACE_CHARS} { return XmlTokenType.XML_WHITE_SPACE; }
+<DOC_TYPE,TAG_ATTRIBUTES,ATTRIBUTE_VALUE_START,PROCESSING_INSTRUCTION, START_TAG_NAME, END_TAG_NAME, END_TAG_NAME2,
+TAG_CHARACTERS, BEFORE_TAG_ATTRIBUTES> {mIDENT}";" {yybegin(YYINITIAL); yypushback(yylength());}
+
+<DOC_TYPE,TAG_ATTRIBUTES,ATTRIBUTE_VALUE_START,PROCESSING_INSTRUCTION, START_TAG_NAME, END_TAG_NAME, END_TAG_NAME2, TAG_CHARACTERS> {WHITE_SPACE_CHARS} { return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
 <YYINITIAL> "<" {TAG_NAME} { yybegin(START_TAG_NAME); yypushback(yylength()); }
 <YYINITIAL> "<" {TAG_NAME_FWT} { yybegin(START_TAG_NAME2); yypushback(yylength()); }
-<START_TAG_NAME, START_TAG_NAME2, TAG_CHARACTERS> "<" { return XmlTokenType.XML_START_TAG_START; }
+<START_TAG_NAME, START_TAG_NAME2, TAG_CHARACTERS> "<" { return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
 
 <YYINITIAL> "</" {TAG_NAME} { yybegin(END_TAG_NAME); yypushback(yylength()); }
 <YYINITIAL> "</" {TAG_NAME_FWT} { yybegin(END_TAG_NAME2); yypushback(yylength()); }
-<YYINITIAL, END_TAG_NAME, END_TAG_NAME2> "</" { return XmlTokenType.XML_END_TAG_START; }
+<YYINITIAL, END_TAG_NAME, END_TAG_NAME2> "</" { return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
 
-<START_TAG_NAME, END_TAG_NAME> {TAG_NAME} { yybegin(BEFORE_TAG_ATTRIBUTES); return XmlTokenType.XML_NAME; }
-<END_TAG_NAME2> {TAG_NAME_FWT} { return XmlTokenType.XML_NAME; }
-<START_TAG_NAME2> {TAG_NAME_FWT} { yybegin(TAG_CHARACTERS); return XmlTokenType.XML_NAME; }
+<START_TAG_NAME, END_TAG_NAME> {TAG_NAME} { yybegin(BEFORE_TAG_ATTRIBUTES); return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
+<END_TAG_NAME2> {TAG_NAME_FWT} { return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
+<START_TAG_NAME2> {TAG_NAME_FWT} { yybegin(TAG_CHARACTERS); return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
 
-<BEFORE_TAG_ATTRIBUTES, TAG_ATTRIBUTES, END_TAG_NAME2, TAG_CHARACTERS> ">" { yybegin(YYINITIAL); return XmlTokenType.XML_TAG_END; }
-<BEFORE_TAG_ATTRIBUTES, TAG_ATTRIBUTES, TAG_CHARACTERS> "/>" { yybegin(YYINITIAL); return XmlTokenType.XML_EMPTY_ELEMENT_END; }
-<BEFORE_TAG_ATTRIBUTES> {WHITE_SPACE_CHARS} { yybegin(TAG_ATTRIBUTES); return XmlTokenType.XML_WHITE_SPACE;}
-<TAG_ATTRIBUTES> {ATTRIBUTE_NAME} { return XmlTokenType.XML_NAME; }
-<TAG_ATTRIBUTES> "=" { yybegin(ATTRIBUTE_VALUE_START); return XmlTokenType.XML_EQ; }
+<BEFORE_TAG_ATTRIBUTES, TAG_ATTRIBUTES, END_TAG_NAME2, TAG_CHARACTERS> ">" { yybegin(YYINITIAL); return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
+<BEFORE_TAG_ATTRIBUTES, TAG_ATTRIBUTES, TAG_CHARACTERS> "/>" { yybegin(YYINITIAL); return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
+<BEFORE_TAG_ATTRIBUTES> {WHITE_SPACE_CHARS} { yybegin(TAG_ATTRIBUTES); return GroovyHtmlTokenTypes.TEMPLATE_TEXT;}
+<TAG_ATTRIBUTES> {ATTRIBUTE_NAME} { return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
+<TAG_ATTRIBUTES> "=" { yybegin(ATTRIBUTE_VALUE_START); return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
 <BEFORE_TAG_ATTRIBUTES, TAG_ATTRIBUTES, START_TAG_NAME, END_TAG_NAME, END_TAG_NAME2> [^] { yybegin(YYINITIAL); yypushback(1); break; }
 
-<TAG_CHARACTERS> [^] { return XmlTokenType.XML_TAG_CHARACTERS; }
+<TAG_CHARACTERS> [^] { return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
 
-<ATTRIBUTE_VALUE_START> ">" { yybegin(YYINITIAL); return XmlTokenType.XML_TAG_END; }
-<ATTRIBUTE_VALUE_START> "/>" { yybegin(YYINITIAL); return XmlTokenType.XML_EMPTY_ELEMENT_END; }
+<ATTRIBUTE_VALUE_START> ">" { yybegin(YYINITIAL); return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
+<ATTRIBUTE_VALUE_START> "/>" { yybegin(YYINITIAL); return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
 
-<ATTRIBUTE_VALUE_START> [^ \n\r\t\f'\"\>]([^ \n\r\t\f\>]|(\/[^\>]))* { yybegin(TAG_ATTRIBUTES); return XmlTokenType.XML_ATTRIBUTE_VALUE_TOKEN; }
-<ATTRIBUTE_VALUE_START> "\"" { yybegin(ATTRIBUTE_VALUE_DQ); return XmlTokenType.XML_ATTRIBUTE_VALUE_START_DELIMITER; }
-<ATTRIBUTE_VALUE_START> "'" { yybegin(ATTRIBUTE_VALUE_SQ); return XmlTokenType.XML_ATTRIBUTE_VALUE_START_DELIMITER; }
+<ATTRIBUTE_VALUE_START> [^ \n\r\t\f'\"\>]([^ \n\r\t\f\>]|(\/[^\>]))* { yybegin(TAG_ATTRIBUTES); return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
+<ATTRIBUTE_VALUE_START> "\"" { yybegin(ATTRIBUTE_VALUE_DQ); return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
+<ATTRIBUTE_VALUE_START> "'" { yybegin(ATTRIBUTE_VALUE_SQ); return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
 
 <ATTRIBUTE_VALUE_DQ> {
-  "\"" { yybegin(TAG_ATTRIBUTES); return XmlTokenType.XML_ATTRIBUTE_VALUE_END_DELIMITER; }
-  \\\$ { return XmlTokenType.XML_ATTRIBUTE_VALUE_TOKEN; }
-  [^] { return XmlTokenType.XML_ATTRIBUTE_VALUE_TOKEN;}
+  "\"" { yybegin(TAG_ATTRIBUTES); return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
+  \\\$ { return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
+  [^] { return GroovyHtmlTokenTypes.TEMPLATE_TEXT;}
 }
 
 <ATTRIBUTE_VALUE_SQ> {
-  "'" { yybegin(TAG_ATTRIBUTES); return XmlTokenType.XML_ATTRIBUTE_VALUE_END_DELIMITER; }
-  \\\$ { return XmlTokenType.XML_ATTRIBUTE_VALUE_TOKEN; }
-  [^] { return XmlTokenType.XML_ATTRIBUTE_VALUE_TOKEN;}
+  "'" { yybegin(TAG_ATTRIBUTES); return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
+  \\\$ { return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
+  [^] { return GroovyHtmlTokenTypes.TEMPLATE_TEXT;}
 }
+
+<DOC_TYPE,TAG_ATTRIBUTES,PROCESSING_INSTRUCTION, START_TAG_NAME, END_TAG_NAME, END_TAG_NAME2,TAG_CHARACTERS, BEFORE_TAG_ATTRIBUTES> . {yybegin(YYINITIAL); yypushback(yylength()); }
 
 <NLS_AFTER_COMMENT>{
 

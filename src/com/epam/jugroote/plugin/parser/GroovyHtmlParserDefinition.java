@@ -1,7 +1,7 @@
 package com.epam.jugroote.plugin.parser;
 
 import com.epam.jugroote.plugin.GroovyHtmlLanguage;
-import com.epam.jugroote.plugin.lexers.GroovyHtmlLexerAdapter;
+import com.epam.jugroote.plugin.lexers.GroovyHtmlLexer;
 import com.epam.jugroote.plugin.psi.GroovyHtmlFile;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.Language;
@@ -26,7 +26,7 @@ public class GroovyHtmlParserDefinition implements ParserDefinition {
     @NotNull
     @Override
     public Lexer createLexer(Project project) {
-        return new GroovyHtmlLexerAdapter();
+        return new GroovyHtmlLexer();
     }
 
     @NotNull

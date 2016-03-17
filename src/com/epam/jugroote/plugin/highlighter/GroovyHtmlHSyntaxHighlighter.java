@@ -1,6 +1,6 @@
 package com.epam.jugroote.plugin.highlighter;
 
-import com.epam.jugroote.plugin.lexers.GroovyHtmlLexerAdapter;
+import com.epam.jugroote.plugin.lexers.GroovyHtmlLexer;
 import com.intellij.ide.highlighter.XmlFileHighlighter;
 import com.intellij.lexer.Lexer;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
@@ -22,7 +22,7 @@ public class GroovyHtmlHSyntaxHighlighter extends SyntaxHighlighterBase {
     @NotNull
     @Override
     public Lexer getHighlightingLexer() {
-        return new GroovyHtmlLexerAdapter();
+        return new GroovyHtmlLexer();
     }
 
     @NotNull

@@ -7,4 +7,5 @@ import org.jetbrains.plugins.groovy.lang.parser.GroovyElementTypes;
 public interface GroovyHtmlTypes extends GroovyElementTypes {
 
     GroovyHtmlElementType TEMPLATE = new GroovyHtmlElementType("TEMPLATE");
+    GroovyHtmlElementType INJECTION = new GroovyHtmlElementType("INJECTION");
 }

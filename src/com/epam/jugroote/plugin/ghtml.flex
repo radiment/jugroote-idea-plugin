@@ -19,7 +19,6 @@ import com.epam.jugroote.plugin.parser.GroovyHtmlTokenTypes;
 import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.TokenType;
 import com.intellij.psi.tree.IElementType;
-import com.intellij.psi.xml.XmlTokenType;
 import com.intellij.util.containers.Stack;
 import org.jetbrains.plugins.groovy.lang.lexer.GroovyTokenTypes;
 import org.jetbrains.plugins.groovy.lang.groovydoc.parser.GroovyDocElementTypes;
@@ -229,19 +228,21 @@ PUBLIC= (P|p)(U|u)(B|b)(L|l)(I|i)(C|c)
 %xstate IN_DOLLAR_SLASH_REGEX_IDENT
 %xstate IN_DOLLAR_SLASH_REGEX_DOT
 
-%state DOC_TYPE
-%state COMMENT
-%state START_TAG_NAME
-%state END_TAG_NAME
-%state BEFORE_TAG_ATTRIBUTES
-%state TAG_ATTRIBUTES
-%state ATTRIBUTE_VALUE_START
-%state ATTRIBUTE_VALUE_DQ
-%state ATTRIBUTE_VALUE_SQ
-%state PROCESSING_INSTRUCTION
-%state START_TAG_NAME2
-%state END_TAG_NAME2
-%state TAG_CHARACTERS
+%xstate DOC_TYPE
+%xstate COMMENT
+%xstate START_TAG_NAME
+%xstate END_TAG_NAME
+%xstate BEFORE_TAG_ATTRIBUTES
+%xstate TAG_ATTRIBUTES
+%xstate ATTRIBUTE_VALUE_START
+%xstate ATTRIBUTE_VALUE_DQ
+%xstate ATTRIBUTE_VALUE_SQ
+%xstate PROCESSING_INSTRUCTION
+%xstate START_TAG_NAME2
+%xstate END_TAG_NAME2
+%xstate TAG_CHARACTERS
+
+%state INJECTION
 
 // Not to separate NewLine sequence by comments
 %xstate NLS_AFTER_COMMENT
@@ -305,7 +306,17 @@ TAG_CHARACTERS, BEFORE_TAG_ATTRIBUTES> {mIDENT}";" {yybegin(YYINITIAL); yypushba
   [^] { return GroovyHtmlTokenTypes.TEMPLATE_TEXT;}
 }
 
+<ATTRIBUTE_VALUE_DQ, ATTRIBUTE_VALUE_SQ, YYINITIAL> "${" {
+    afterComment = yystate();
+    yybegin(INJECTION);
+    return GroovyHtmlTokenTypes.INJECT_START;
+}
+
 <DOC_TYPE,TAG_ATTRIBUTES,PROCESSING_INSTRUCTION, START_TAG_NAME, END_TAG_NAME, END_TAG_NAME2,TAG_CHARACTERS, BEFORE_TAG_ATTRIBUTES> . {yybegin(YYINITIAL); yypushback(yylength()); }
+
+<INJECTION> {
+    "}" { yybegin(afterComment); return GroovyHtmlTokenTypes.INJECT_END;}
+}
 
 <NLS_AFTER_COMMENT>{
 
@@ -865,7 +876,14 @@ TAG_CHARACTERS, BEFORE_TAG_ATTRIBUTES> {mIDENT}";" {yybegin(YYINITIAL); yypushba
                                                               gStringStack.push(GroovyTokenTypes.mLPAREN);
                                                               return GroovyTokenTypes.mGSTRING_BEGIN; }
 
-{mGSTRING_LITERAL}                                         {  return GroovyTokenTypes.mGSTRING_LITERAL; }
+{mGSTRING_LITERAL}                                         {
+    if (yystate() != ATTRIBUTE_VALUE_START) {
+        return GroovyTokenTypes.mGSTRING_LITERAL;
+    } else {
+        yybegin(TAG_ATTRIBUTES);
+        return GroovyHtmlTokenTypes.TEMPLATE_TEXT;
+    }
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// keywords /////////////////////////////////////////////////////////////////////////////////////

@@ -876,14 +876,7 @@ TAG_CHARACTERS, BEFORE_TAG_ATTRIBUTES> {mIDENT}";" {yybegin(YYINITIAL); yypushba
                                                               gStringStack.push(GroovyTokenTypes.mLPAREN);
                                                               return GroovyTokenTypes.mGSTRING_BEGIN; }
 
-{mGSTRING_LITERAL}                                         {
-    if (yystate() != ATTRIBUTE_VALUE_START) {
-        return GroovyTokenTypes.mGSTRING_LITERAL;
-    } else {
-        yybegin(TAG_ATTRIBUTES);
-        return GroovyHtmlTokenTypes.TEMPLATE_TEXT;
-    }
-}
+{mGSTRING_LITERAL}                                         { return GroovyTokenTypes.mGSTRING_LITERAL; }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// keywords /////////////////////////////////////////////////////////////////////////////////////

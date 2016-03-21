@@ -11,7 +11,7 @@ import static com.epam.jugroote.plugin.parser.GroovyHtmlTypes.*;
 public class GroovyHtmlPsiCreator {
     public static PsiElement createElement(ASTNode node) {
         IElementType elem = node.getElementType();
-        if (elem == TEMPLATE || elem == INJECTION) return new GrTemplate(node);
+        if (elem == INJECTION || elem == TEMPLATE) return new GrTemplate(node);
         return GroovyPsiCreator.createElement(node);
     }
 }

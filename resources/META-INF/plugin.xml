@@ -37,6 +37,9 @@
     <lang.findUsagesProvider language="ghtml"
                              implementationClass="org.jetbrains.plugins.groovy.findUsages.GroovyFindUsagesProvider"/>
 
+    <lang.fileViewProviderFactory language="ghtml"
+                                  implementationClass="com.epam.jugroote.plugin.psi.GroovyHtmlFileViewProviderFactory"/>
+
   </extensions>
 
   <actions>

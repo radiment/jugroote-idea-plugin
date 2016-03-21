@@ -4,6 +4,7 @@ import com.intellij.lang.ASTNode;
 import com.intellij.lang.LighterASTNode;
 import com.intellij.lang.PsiBuilder;
 import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.tree.TokenSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.groovy.GroovyBundle;
 import org.jetbrains.plugins.groovy.lang.lexer.GroovyTokenTypes;
@@ -21,6 +22,9 @@ import static com.epam.jugroote.plugin.parser.GroovyHtmlTypes.INJECTION;
 import static com.epam.jugroote.plugin.parser.GroovyHtmlTypes.TEMPLATE;
 
 public class GroovyHtmlParser extends GroovyParser {
+
+    public static final TokenSet SEPARATORS = TokenSet.create(
+            GroovyTokenTypes.mNLS, GroovyTokenTypes.mSEMI, TEMPLATE_TEXT);
 
     @Override
     @NotNull
@@ -64,9 +68,9 @@ public class GroovyHtmlParser extends GroovyParser {
 
     public boolean parseSeparators(PsiBuilder builder) {
         IElementType type = builder.getTokenType();
-        if (GroovyTokenTypes.mSEMI.equals(type) || GroovyTokenTypes.mNLS.equals(type)) {
+        if (SEPARATORS.contains(type)) {
             builder.advanceLexer();
-            while (ParserUtils.getToken(builder, GroovyTokenTypes.mNLS) || ParserUtils.getToken(builder, GroovyTokenTypes.mSEMI)) {
+            while (ParserUtils.getToken(builder, SEPARATORS)) {
                 // Parse newLines
             }
             return true;
@@ -74,7 +78,7 @@ public class GroovyHtmlParser extends GroovyParser {
         LighterASTNode marker = builder.getLatestDoneMarker();
         if (marker != null) {
             IElementType previous = marker.getTokenType();
-            if (TEMPLATE.equals(previous) || INJECTION.equals(previous)) {
+            if (INJECTION.equals(previous) || TEMPLATE.equals(previous)) {
                 return true;
             }
         }
@@ -95,9 +99,9 @@ public class GroovyHtmlParser extends GroovyParser {
     private boolean parseXmlStatement(PsiBuilder builder) {
         IElementType type = builder.getTokenType();
         if (type == TEMPLATE_TEXT) {
-            PsiBuilder.Marker template = builder.mark();
+//            PsiBuilder.Marker template = builder.mark();
             builder.advanceLexer();
-            template.done(TEMPLATE);
+//            template.done(TEMPLATE);
 
             return true;
         } else if (type == INJECT_START) {

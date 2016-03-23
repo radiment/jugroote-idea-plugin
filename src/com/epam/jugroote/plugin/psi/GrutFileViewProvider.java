@@ -1,6 +1,6 @@
 package com.epam.jugroote.plugin.psi;
 
-import com.epam.jugroote.plugin.GroovyHtmlLanguage;
+import com.epam.jugroote.plugin.GrutLanguage;
 import com.intellij.lang.Language;
 import com.intellij.lang.LanguageParserDefinitions;
 import com.intellij.lang.StdLanguages;
@@ -23,20 +23,20 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.Set;
 
-public class GroovyHtmlFileViewProvider extends MultiplePsiFilesPerDocumentFileViewProvider
+public class GrutFileViewProvider extends MultiplePsiFilesPerDocumentFileViewProvider
         implements ConfigurableTemplateLanguageFileViewProvider {
     private final Language myTemplateDataLanguage;
 
-    public GroovyHtmlFileViewProvider(PsiManager manager,
-                                      VirtualFile virtualFile, boolean eventSystemEnabled) {
+    public GrutFileViewProvider(PsiManager manager,
+                                VirtualFile virtualFile, boolean eventSystemEnabled) {
         super(manager, virtualFile, eventSystemEnabled);
         Language language = getTemplateDataLanguage(virtualFile, manager.getProject());
         this.myTemplateDataLanguage = LanguageSubstitutors.INSTANCE.substituteLanguage(language, virtualFile,
                 manager.getProject());
     }
 
-    public GroovyHtmlFileViewProvider(PsiManager manager, VirtualFile fileCopy, boolean eventSystemEndabled,
-                                      Language myTemplateDataLanguage) {
+    public GrutFileViewProvider(PsiManager manager, VirtualFile fileCopy, boolean eventSystemEndabled,
+                                Language myTemplateDataLanguage) {
         super(manager, fileCopy, eventSystemEndabled);
         this.myTemplateDataLanguage = myTemplateDataLanguage;
     }
@@ -55,7 +55,7 @@ public class GroovyHtmlFileViewProvider extends MultiplePsiFilesPerDocumentFileV
         }
         if (lang == getTemplateDataLanguage()) {
             final PsiFileImpl file = (PsiFileImpl) createFileInner(lang);
-            file.setContentElementType(GroovyHtmlFileElementTypes.TEMPLATE_DATA);
+            file.setContentElementType(GrutFileElementTypes.TEMPLATE_DATA);
             return file;
         }
         return null;
@@ -90,7 +90,7 @@ public class GroovyHtmlFileViewProvider extends MultiplePsiFilesPerDocumentFileV
     @NotNull
     @Override
     public Language getBaseLanguage() {
-        return GroovyHtmlLanguage.INSTANCE;
+        return GrutLanguage.INSTANCE;
     }
 
     @NotNull
@@ -102,11 +102,11 @@ public class GroovyHtmlFileViewProvider extends MultiplePsiFilesPerDocumentFileV
     @NotNull
     @Override
     public Set<Language> getLanguages() {
-        return new THashSet<>(Arrays.asList(GroovyHtmlLanguage.INSTANCE, getTemplateDataLanguage()));
+        return new THashSet<>(Arrays.asList(GrutLanguage.INSTANCE, getTemplateDataLanguage()));
     }
 
     @Override
     protected MultiplePsiFilesPerDocumentFileViewProvider cloneInner(VirtualFile fileCopy) {
-        return new GroovyHtmlFileViewProvider(getManager(), fileCopy, false, myTemplateDataLanguage);
+        return new GrutFileViewProvider(getManager(), fileCopy, false, myTemplateDataLanguage);
     }
 }

@@ -1,6 +1,6 @@
 package com.epam.jugroote.plugin.highlighter;
 
-import com.epam.jugroote.plugin.parser.GroovyHtmlTokenTypes;
+import com.epam.jugroote.plugin.parser.GrutTokenTypes;
 import com.intellij.ide.highlighter.HtmlFileType;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.editor.ex.util.LayerDescriptor;
@@ -14,13 +14,13 @@ import com.intellij.psi.templateLanguages.TemplateDataHighlighterWrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class GroovyHtmlHighlighter extends LayeredLexerEditorHighlighter {
+public class GrutHighlighter extends LayeredLexerEditorHighlighter {
 
-    public GroovyHtmlHighlighter(@Nullable Project project, @Nullable VirtualFile virtualFile,
-                                 @NotNull EditorColorsScheme colors) {
-        super(new GroovyHtmlHSyntaxHighlighter(), colors);
+    public GrutHighlighter(@Nullable Project project, @Nullable VirtualFile virtualFile,
+                           @NotNull EditorColorsScheme colors) {
+        super(new GrutSyntaxHighlighter(), colors);
         SyntaxHighlighter highlighter = getTemplateDataLanguageHighlighter(project, virtualFile);
-        this.registerLayer(GroovyHtmlTokenTypes.TEMPLATE_TEXT,
+        this.registerLayer(GrutTokenTypes.TEMPLATE_TEXT,
                 new LayerDescriptor(new TemplateDataHighlighterWrapper(highlighter), ""));
     }
 

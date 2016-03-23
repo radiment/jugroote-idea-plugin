@@ -29,16 +29,16 @@
     <!--<additionalTextAttributes scheme="Default" file="colorSchemes/GroovyDefault.xml"/>-->
     <!--<additionalTextAttributes scheme="Darcula" file="colorSchemes/GroovyDarcula.xml"/>-->
     <!-- Add your extensions here -->
-    <fileTypeFactory implementation="com.epam.jugroote.plugin.GroovyHtmlFileTypeFactory"/>
-    <lang.parserDefinition language="ghtml" implementationClass="com.epam.jugroote.plugin.parser.GroovyHtmlParserDefinition"/>
-    <lang.syntaxHighlighterFactory language="ghtml"
-            implementationClass="com.epam.jugroote.plugin.highlighter.GroovyHtmlSyntaxHighlighterFactory"/>
+    <fileTypeFactory implementation="com.epam.jugroote.plugin.GrutFileTypeFactory"/>
+    <lang.parserDefinition language="grut" implementationClass="com.epam.jugroote.plugin.parser.GrutParserDefinition"/>
+    <lang.syntaxHighlighterFactory language="grut"
+            implementationClass="com.epam.jugroote.plugin.highlighter.GrutSyntaxHighlighterFactory"/>
     <colorSettingsPage implementation="org.jetbrains.plugins.groovy.highlighter.GroovyColorsAndFontsPage"/>
-    <lang.findUsagesProvider language="ghtml"
+    <lang.findUsagesProvider language="grut"
                              implementationClass="org.jetbrains.plugins.groovy.findUsages.GroovyFindUsagesProvider"/>
 
-    <lang.fileViewProviderFactory language="ghtml"
-                                  implementationClass="com.epam.jugroote.plugin.psi.GroovyHtmlFileViewProviderFactory"/>
+    <lang.fileViewProviderFactory language="grut"
+                                  implementationClass="com.epam.jugroote.plugin.psi.GrutFileViewProviderFactory"/>
 
   </extensions>
 

@@ -15,7 +15,7 @@
 
 package com.epam.jugroote.plugin.lexers;
 
-import com.epam.jugroote.plugin.parser.GroovyHtmlTokenTypes;
+import com.epam.jugroote.plugin.parser.GrutTokenTypes;
 import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.TokenType;
 import com.intellij.psi.tree.IElementType;
@@ -25,7 +25,7 @@ import org.jetbrains.plugins.groovy.lang.groovydoc.parser.GroovyDocElementTypes;
 
 %%
 
-%class GroovyHtmlFlexLexer
+%class GrutFlexLexer
 %implements FlexLexer
 %unicode
 %public
@@ -46,6 +46,17 @@ import org.jetbrains.plugins.groovy.lang.groovydoc.parser.GroovyDocElementTypes;
   private Stack <IElementType> blockStack = new Stack<IElementType>();
 
   private int afterComment = YYINITIAL;
+  private int afterInjection = YYINITIAL;
+  private int afterTemplate = YYINITIAL;
+
+  private void startTemplate(int state) {
+    afterTemplate = yystate();
+    yybegin(state);
+  }
+
+  private void endTemplate() {
+    yybegin(afterTemplate);
+  }
 
   private void clearStacks(){
     gStringStack.clear();
@@ -238,8 +249,6 @@ PUBLIC= (P|p)(U|u)(B|b)(L|l)(I|i)(C|c)
 %xstate ATTRIBUTE_VALUE_DQ
 %xstate ATTRIBUTE_VALUE_SQ
 %xstate PROCESSING_INSTRUCTION
-%xstate START_TAG_NAME2
-%xstate END_TAG_NAME2
 %xstate TAG_CHARACTERS
 
 %state INJECTION
@@ -253,69 +262,65 @@ PUBLIC= (P|p)(U|u)(B|b)(L|l)(I|i)(C|c)
 %state BRACE_COUNT
 
 %%
-<YYINITIAL> "<?" { yybegin(PROCESSING_INSTRUCTION); }
-<PROCESSING_INSTRUCTION> .* ">" { yybegin(YYINITIAL); return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
+"<?" { yybegin(PROCESSING_INSTRUCTION); }
+<PROCESSING_INSTRUCTION> .* ">" { endTemplate(); return GrutTokenTypes.TEMPLATE_TEXT; }
 
-<YYINITIAL> {DOCTYPE} { yybegin(DOC_TYPE); return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
-<DOC_TYPE> {HTML} { return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
-<DOC_TYPE> {PUBLIC} { return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
-<DOC_TYPE> {DTD_REF} { return GroovyHtmlTokenTypes.TEMPLATE_TEXT;}
-<DOC_TYPE> ">" { yybegin(YYINITIAL); return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
+{DOCTYPE} { startTemplate(DOC_TYPE); return GrutTokenTypes.TEMPLATE_TEXT; }
+<DOC_TYPE> {HTML} { return GrutTokenTypes.TEMPLATE_TEXT; }
+<DOC_TYPE> {PUBLIC} { return GrutTokenTypes.TEMPLATE_TEXT; }
+<DOC_TYPE> {DTD_REF} { return GrutTokenTypes.TEMPLATE_TEXT;}
+<DOC_TYPE> ">" { endTemplate(); return GrutTokenTypes.TEMPLATE_TEXT; }
 
-<DOC_TYPE,TAG_ATTRIBUTES,ATTRIBUTE_VALUE_START,PROCESSING_INSTRUCTION, START_TAG_NAME, END_TAG_NAME, END_TAG_NAME2,
-TAG_CHARACTERS, BEFORE_TAG_ATTRIBUTES> {mIDENT}";" {yybegin(YYINITIAL); yypushback(yylength());}
+<DOC_TYPE,TAG_ATTRIBUTES,ATTRIBUTE_VALUE_START,PROCESSING_INSTRUCTION, START_TAG_NAME, END_TAG_NAME, TAG_CHARACTERS,
+BEFORE_TAG_ATTRIBUTES> {mIDENT}";" {endTemplate(); yypushback(yylength());}
 
-<DOC_TYPE,TAG_ATTRIBUTES,ATTRIBUTE_VALUE_START,PROCESSING_INSTRUCTION, START_TAG_NAME, END_TAG_NAME, END_TAG_NAME2, TAG_CHARACTERS> {WHITE_SPACE_CHARS} { return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
-<YYINITIAL> "<" {TAG_NAME} { yybegin(START_TAG_NAME); yypushback(yylength()); }
-<YYINITIAL> "<" {TAG_NAME_FWT} { yybegin(START_TAG_NAME2); yypushback(yylength()); }
-<START_TAG_NAME, START_TAG_NAME2, TAG_CHARACTERS> "<" { return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
+<DOC_TYPE,TAG_ATTRIBUTES,ATTRIBUTE_VALUE_START,PROCESSING_INSTRUCTION, START_TAG_NAME, END_TAG_NAME, TAG_CHARACTERS> {WHITE_SPACE_CHARS} { return GrutTokenTypes.TEMPLATE_TEXT; }
+"<" {TAG_NAME} { startTemplate(START_TAG_NAME); yypushback(yylength()); }
+<START_TAG_NAME, TAG_CHARACTERS> "<" { return GrutTokenTypes.TEMPLATE_TEXT; }
 
-<YYINITIAL> "</" {TAG_NAME} { yybegin(END_TAG_NAME); yypushback(yylength()); }
-<YYINITIAL> "</" {TAG_NAME_FWT} { yybegin(END_TAG_NAME2); yypushback(yylength()); }
-<YYINITIAL, END_TAG_NAME, END_TAG_NAME2> "</" { return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
+"</" { startTemplate(END_TAG_NAME); return GrutTokenTypes.TEMPLATE_TEXT; }
 
-<START_TAG_NAME, END_TAG_NAME> {TAG_NAME} { yybegin(BEFORE_TAG_ATTRIBUTES); return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
-<END_TAG_NAME2> {TAG_NAME_FWT} { return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
-<START_TAG_NAME2> {TAG_NAME_FWT} { yybegin(TAG_CHARACTERS); return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
+<START_TAG_NAME, END_TAG_NAME> {TAG_NAME} { yybegin(BEFORE_TAG_ATTRIBUTES); return GrutTokenTypes.TEMPLATE_TEXT; }
 
-<BEFORE_TAG_ATTRIBUTES, TAG_ATTRIBUTES, END_TAG_NAME2, TAG_CHARACTERS> ">" { yybegin(YYINITIAL); return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
-<BEFORE_TAG_ATTRIBUTES, TAG_ATTRIBUTES, TAG_CHARACTERS> "/>" { yybegin(YYINITIAL); return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
-<BEFORE_TAG_ATTRIBUTES> {WHITE_SPACE_CHARS} { yybegin(TAG_ATTRIBUTES); return GroovyHtmlTokenTypes.TEMPLATE_TEXT;}
-<TAG_ATTRIBUTES> {ATTRIBUTE_NAME} { return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
-<TAG_ATTRIBUTES> "=" { yybegin(ATTRIBUTE_VALUE_START); return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
-<BEFORE_TAG_ATTRIBUTES, TAG_ATTRIBUTES, START_TAG_NAME, END_TAG_NAME, END_TAG_NAME2> [^] { yybegin(YYINITIAL); yypushback(1); break; }
+<BEFORE_TAG_ATTRIBUTES, TAG_ATTRIBUTES, TAG_CHARACTERS> ">" { endTemplate(); return GrutTokenTypes.TEMPLATE_TEXT; }
+<BEFORE_TAG_ATTRIBUTES, TAG_ATTRIBUTES, TAG_CHARACTERS> "/>" { endTemplate(); return GrutTokenTypes.TEMPLATE_TEXT; }
+<BEFORE_TAG_ATTRIBUTES> {WHITE_SPACE_CHARS} { yybegin(TAG_ATTRIBUTES); return GrutTokenTypes.TEMPLATE_TEXT;}
+<TAG_ATTRIBUTES> {ATTRIBUTE_NAME} { return GrutTokenTypes.TEMPLATE_TEXT; }
+<TAG_ATTRIBUTES> "=" { yybegin(ATTRIBUTE_VALUE_START); return GrutTokenTypes.TEMPLATE_TEXT; }
+<BEFORE_TAG_ATTRIBUTES, TAG_ATTRIBUTES, START_TAG_NAME, END_TAG_NAME> [^] { endTemplate(); yypushback(1); break; }
 
-<TAG_CHARACTERS> [^] { return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
+<TAG_CHARACTERS> [^] { return GrutTokenTypes.TEMPLATE_TEXT; }
 
-<ATTRIBUTE_VALUE_START> ">" { yybegin(YYINITIAL); return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
-<ATTRIBUTE_VALUE_START> "/>" { yybegin(YYINITIAL); return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
+<ATTRIBUTE_VALUE_START> ">" { endTemplate(); return GrutTokenTypes.TEMPLATE_TEXT; }
+<ATTRIBUTE_VALUE_START> "/>" { endTemplate(); return GrutTokenTypes.TEMPLATE_TEXT; }
 
-<ATTRIBUTE_VALUE_START> [^ \n\r\t\f'\"\>]([^ \n\r\t\f\>]|(\/[^\>]))* { yybegin(TAG_ATTRIBUTES); return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
-<ATTRIBUTE_VALUE_START> "\"" { yybegin(ATTRIBUTE_VALUE_DQ); return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
-<ATTRIBUTE_VALUE_START> "'" { yybegin(ATTRIBUTE_VALUE_SQ); return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
+<ATTRIBUTE_VALUE_START> [^ \n\r\t\f'\"\>]([^ \n\r\t\f\>]|(\/[^\>]))* { yybegin(TAG_ATTRIBUTES); return GrutTokenTypes.TEMPLATE_TEXT; }
+<ATTRIBUTE_VALUE_START> "\"" { yybegin(ATTRIBUTE_VALUE_DQ); return GrutTokenTypes.TEMPLATE_TEXT; }
+<ATTRIBUTE_VALUE_START> "'" { yybegin(ATTRIBUTE_VALUE_SQ); return GrutTokenTypes.TEMPLATE_TEXT; }
 
 <ATTRIBUTE_VALUE_DQ> {
-  "\"" { yybegin(TAG_ATTRIBUTES); return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
-  \\\$ { return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
-  [^] { return GroovyHtmlTokenTypes.TEMPLATE_TEXT;}
+  "\"" { yybegin(TAG_ATTRIBUTES); return GrutTokenTypes.TEMPLATE_TEXT; }
+  \\\$ { return GrutTokenTypes.TEMPLATE_TEXT; }
+  [^] { return GrutTokenTypes.TEMPLATE_TEXT;}
 }
 
 <ATTRIBUTE_VALUE_SQ> {
-  "'" { yybegin(TAG_ATTRIBUTES); return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
-  \\\$ { return GroovyHtmlTokenTypes.TEMPLATE_TEXT; }
-  [^] { return GroovyHtmlTokenTypes.TEMPLATE_TEXT;}
+  "'" { yybegin(TAG_ATTRIBUTES); return GrutTokenTypes.TEMPLATE_TEXT; }
+  \\\$ { return GrutTokenTypes.TEMPLATE_TEXT; }
+  [^] { return GrutTokenTypes.TEMPLATE_TEXT;}
 }
 
 <ATTRIBUTE_VALUE_DQ, ATTRIBUTE_VALUE_SQ, YYINITIAL> "${" {
-    afterComment = yystate();
+    afterInjection = yystate();
     yybegin(INJECTION);
-    return GroovyHtmlTokenTypes.INJECT_START;
+    return GrutTokenTypes.INJECT_START;
 }
 
-<DOC_TYPE,TAG_ATTRIBUTES,PROCESSING_INSTRUCTION, START_TAG_NAME, END_TAG_NAME, END_TAG_NAME2,TAG_CHARACTERS, BEFORE_TAG_ATTRIBUTES> . {yybegin(YYINITIAL); yypushback(yylength()); }
+<DOC_TYPE,TAG_ATTRIBUTES,PROCESSING_INSTRUCTION, START_TAG_NAME, END_TAG_NAME, TAG_CHARACTERS,
+BEFORE_TAG_ATTRIBUTES> . {endTemplate(); yypushback(yylength()); }
 
 <INJECTION> {
-    "}" { yybegin(afterComment); return GroovyHtmlTokenTypes.INJECT_END;}
+    "}" { yybegin(afterInjection); return GrutTokenTypes.INJECT_END;}
 }
 
 <NLS_AFTER_COMMENT>{

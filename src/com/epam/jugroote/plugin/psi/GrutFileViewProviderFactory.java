@@ -7,11 +7,11 @@ import com.intellij.psi.FileViewProviderFactory;
 import com.intellij.psi.PsiManager;
 import org.jetbrains.annotations.NotNull;
 
-public class GroovyHtmlFileViewProviderFactory implements FileViewProviderFactory {
+public class GrutFileViewProviderFactory implements FileViewProviderFactory {
     @NotNull
     @Override
     public FileViewProvider createFileViewProvider(@NotNull VirtualFile file, Language language,
                                                    @NotNull PsiManager manager, boolean eventSystemEnabled) {
-        return new GroovyHtmlFileViewProvider(manager, file, eventSystemEnabled);
+        return new GrutFileViewProvider(manager, file, eventSystemEnabled);
     }
 }

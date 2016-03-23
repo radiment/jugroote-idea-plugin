@@ -17,11 +17,11 @@ import org.jetbrains.plugins.groovy.lang.parser.parsing.statements.imports.Impor
 import org.jetbrains.plugins.groovy.lang.parser.parsing.toplevel.packaging.PackageDefinition;
 import org.jetbrains.plugins.groovy.lang.parser.parsing.util.ParserUtils;
 
-import static com.epam.jugroote.plugin.parser.GroovyHtmlTokenTypes.*;
-import static com.epam.jugroote.plugin.parser.GroovyHtmlTypes.INJECTION;
-import static com.epam.jugroote.plugin.parser.GroovyHtmlTypes.TEMPLATE;
+import static com.epam.jugroote.plugin.parser.GrutTokenTypes.*;
+import static com.epam.jugroote.plugin.parser.GrutTypes.INJECTION;
+import static com.epam.jugroote.plugin.parser.GrutTypes.TEMPLATE;
 
-public class GroovyHtmlParser extends GroovyParser {
+public class GrutParser extends GroovyParser {
 
     public static final TokenSet SEPARATORS = TokenSet.create(
             GroovyTokenTypes.mNLS, GroovyTokenTypes.mSEMI, TEMPLATE_TEXT);
@@ -36,7 +36,7 @@ public class GroovyHtmlParser extends GroovyParser {
         } else if (root == GroovyElementTypes.CONSTRUCTOR_BODY) {
             ConstructorBody.parseConstructorBodyDeep(builder, this);
         } else {
-            assert root == GroovyHtmlParserDefinition.FILE : root;
+            assert root == GrutParserDefinition.FILE : root;
 
             PsiBuilder.Marker rootMarker = builder.mark();
             parseFile(builder, this);

@@ -6,9 +6,9 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.tree.IElementType;
 import org.jetbrains.plugins.groovy.lang.parser.GroovyPsiCreator;
 
-import static com.epam.jugroote.plugin.parser.GroovyHtmlTypes.*;
+import static com.epam.jugroote.plugin.parser.GrutTypes.*;
 
-public class GroovyHtmlPsiCreator {
+public class GrutPsiCreator {
     public static PsiElement createElement(ASTNode node) {
         IElementType elem = node.getElementType();
         if (elem == INJECTION || elem == TEMPLATE) return new GrTemplate(node);

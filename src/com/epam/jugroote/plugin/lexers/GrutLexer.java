@@ -5,9 +5,9 @@ import com.intellij.psi.TokenType;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
 
-import static com.epam.jugroote.plugin.parser.GroovyHtmlTokenTypes.*;
+import static com.epam.jugroote.plugin.parser.GrutTokenTypes.*;
 
-public class GroovyHtmlLexer extends LookAheadLexer {
+public class GrutLexer extends LookAheadLexer {
     private static final TokenSet tokensToMerge = TokenSet.create(
             mSL_COMMENT,
             mML_COMMENT,
@@ -20,9 +20,9 @@ public class GroovyHtmlLexer extends LookAheadLexer {
 
     public static final TokenSet concatTokens = TokenSet.create(mNLS, TEMPLATE_TEXT);
 
-    public GroovyHtmlLexer() {
+    public GrutLexer() {
         super(new MergingIntoLexerAdapter(
-                new MergingLexerAdapter(new FlexAdapter(new GroovyHtmlFlexLexer(null)), tokensToMerge),
+                new MergingLexerAdapter(new FlexAdapter(new GrutFlexLexer(null)), tokensToMerge),
                 concatTokens, TEMPLATE_TEXT));
     }
 

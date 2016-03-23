@@ -1,6 +1,6 @@
 package com.epam.jugroote.plugin;
 
-import com.epam.jugroote.plugin.highlighter.GroovyHtmlHighlighter;
+import com.epam.jugroote.plugin.highlighter.GrutHighlighter;
 import com.intellij.openapi.fileTypes.FileTypeEditorHighlighterProviders;
 import com.intellij.openapi.fileTypes.LanguageFileType;
 import org.jetbrains.annotations.NotNull;
@@ -8,14 +8,14 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
-public class GroovyHtmlFileType extends LanguageFileType {
+public class GrutFileType extends LanguageFileType {
 
-    public static final GroovyHtmlFileType INSTANCE = new GroovyHtmlFileType();
+    public static final GrutFileType INSTANCE = new GrutFileType();
 
-    private GroovyHtmlFileType() {
-        super(GroovyHtmlLanguage.INSTANCE);
+    private GrutFileType() {
+        super(GrutLanguage.INSTANCE);
         FileTypeEditorHighlighterProviders.INSTANCE.addExplicitExtension(this,
-                (project, fileType, virtualFile, colors) -> new GroovyHtmlHighlighter(project, virtualFile, colors));
+                (project, fileType, virtualFile, colors) -> new GrutHighlighter(project, virtualFile, colors));
     }
 
     @NotNull
@@ -33,12 +33,12 @@ public class GroovyHtmlFileType extends LanguageFileType {
     @NotNull
     @Override
     public String getDefaultExtension() {
-        return "ghtml";
+        return "gr";
     }
 
     @Nullable
     @Override
     public Icon getIcon() {
-        return GroovyHtmlIcons.FILE;
+        return GrutIcons.FILE;
     }
 }

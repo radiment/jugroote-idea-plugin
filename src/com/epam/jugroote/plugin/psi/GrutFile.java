@@ -1,7 +1,7 @@
 package com.epam.jugroote.plugin.psi;
 
-import com.epam.jugroote.plugin.GroovyHtmlFileType;
-import com.epam.jugroote.plugin.GroovyHtmlLanguage;
+import com.epam.jugroote.plugin.GrutFileType;
+import com.epam.jugroote.plugin.GrutLanguage;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileTypes.FileType;
@@ -26,24 +26,24 @@ import org.jetbrains.plugins.groovy.lang.psi.stubs.GrPackageDefinitionStub;
 
 import javax.swing.*;
 
-public class GroovyHtmlFile extends GroovyFileBaseImpl implements GroovyFile {
+public class GrutFile extends GroovyFileBaseImpl implements GroovyFile {
 
-    private static final Logger LOG = Logger.getInstance(GroovyHtmlFile.class);
+    private static final Logger LOG = Logger.getInstance(GrutFile.class);
     private GroovyScriptClass myScriptClass;
 
-    public GroovyHtmlFile(@NotNull FileViewProvider viewProvider) {
-        super(viewProvider, GroovyHtmlLanguage.INSTANCE);
+    public GrutFile(@NotNull FileViewProvider viewProvider) {
+        super(viewProvider, GrutLanguage.INSTANCE);
     }
 
     @NotNull
     @Override
     public FileType getFileType() {
-        return GroovyHtmlFileType.INSTANCE;
+        return GrutFileType.INSTANCE;
     }
 
     @Override
     public String toString() {
-        return "GroovyHtmlFile:" + getName();
+        return "GrutFile:" + getName();
     }
 
     @Override

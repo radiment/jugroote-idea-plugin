@@ -58,6 +58,14 @@ import org.jetbrains.plugins.groovy.lang.groovydoc.parser.GroovyDocElementTypes;
     yybegin(afterTemplate);
   }
 
+  private IElementType startInject() {
+    afterInjection = yystate();
+    yybegin(NLS_AFTER_LBRACE);
+    blockStack.push(GrutTokenTypes.INJECT_START);
+    braceCount.push(GroovyTokenTypes.mLCURLY);
+    return GrutTokenTypes.INJECT_START;
+  }
+
   private void clearStacks(){
     gStringStack.clear();
     blockStack.clear();
@@ -204,12 +212,15 @@ WHITE_SPACE_CHARS=[ \n\r\t\f]+
 TAG_NAME=({ALPHA}|"_"|":")({ALPHA}|{DIGIT}|"_"|":"|"."|"-")*
 TAG_NAME_FWT=("#")({ALPHA}|{DIGIT}|"_"|":"|"."|"-")*
 /* see http://www.w3.org/TR/html5/syntax.html#syntax-attribute-name */
-ATTRIBUTE_NAME=([^ \n\r\t\f\"\'<>/=])+
+ATTRIBUTE_NAME=([^ \n\r\t\f\"\'<>/="${"])+
 
 DTD_REF= "\"" [^\"]* "\"" | "'" [^']* "'"
 DOCTYPE= "<!" (D|d)(O|o)(C|c)(T|t)(Y|y)(P|p)(E|e)
 HTML= (H|h)(T|t)(M|m)(L|l)
 PUBLIC= (P|p)(U|u)(B|b)(L|l)(I|i)(C|c)
+
+EVALUATION_START= "${"
+PASTE_TEMPLATE= [^"$""}"]
 
 
 
@@ -251,7 +262,7 @@ PUBLIC= (P|p)(U|u)(B|b)(L|l)(I|i)(C|c)
 %xstate PROCESSING_INSTRUCTION
 %xstate TAG_CHARACTERS
 
-%state INJECTION
+%xstate PASTE_TEMPLATE
 
 // Not to separate NewLine sequence by comments
 %xstate NLS_AFTER_COMMENT
@@ -262,7 +273,13 @@ PUBLIC= (P|p)(U|u)(B|b)(L|l)(I|i)(C|c)
 %state BRACE_COUNT
 
 %%
-"<?" { yybegin(PROCESSING_INSTRUCTION); }
+
+"@{" { startTemplate(PASTE_TEMPLATE); return GrutTokenTypes.LEFT_PASTE_BRACE; }
+<PASTE_TEMPLATE> "}@" { endTemplate(); return GrutTokenTypes.RIGHT_PASTE_BRACE; }
+<PASTE_TEMPLATE> {PASTE_TEMPLATE} { return GrutTokenTypes.TEMPLATE_TEXT; }
+<PASTE_TEMPLATE> ["}$"] { return GrutTokenTypes.TEMPLATE_TEXT; }
+
+"<?" { startTemplate(PROCESSING_INSTRUCTION); }
 <PROCESSING_INSTRUCTION> .* ">" { endTemplate(); return GrutTokenTypes.TEMPLATE_TEXT; }
 
 {DOCTYPE} { startTemplate(DOC_TYPE); return GrutTokenTypes.TEMPLATE_TEXT; }
@@ -310,18 +327,12 @@ BEFORE_TAG_ATTRIBUTES> {mIDENT}";" {endTemplate(); yypushback(yylength());}
   [^] { return GrutTokenTypes.TEMPLATE_TEXT;}
 }
 
-<ATTRIBUTE_VALUE_DQ, ATTRIBUTE_VALUE_SQ, YYINITIAL> "${" {
-    afterInjection = yystate();
-    yybegin(INJECTION);
-    return GrutTokenTypes.INJECT_START;
+<ATTRIBUTE_VALUE_DQ, ATTRIBUTE_VALUE_SQ, YYINITIAL, PASTE_TEMPLATE, TAG_ATTRIBUTES, START_TAG_NAME> {EVALUATION_START} {
+    return startInject();
 }
 
 <DOC_TYPE,TAG_ATTRIBUTES,PROCESSING_INSTRUCTION, START_TAG_NAME, END_TAG_NAME, TAG_CHARACTERS,
 BEFORE_TAG_ATTRIBUTES> . {endTemplate(); yypushback(yylength()); }
-
-<INJECTION> {
-    "}" { yybegin(afterInjection); return GrutTokenTypes.INJECT_END;}
-}
 
 <NLS_AFTER_COMMENT>{
 
@@ -466,6 +477,10 @@ BEFORE_TAG_ATTRIBUTES> . {endTemplate(); yypushback(yylength()); }
                                                if (br.equals(GroovyTokenTypes.mLBRACK)) yybegin(IN_TRIPLE_GSTRING);
                                                if (br.equals(GroovyTokenTypes.mDIV)) yybegin(IN_REGEX);
                                                if (br.equals(GroovyTokenTypes.mDOLLAR)) yybegin(IN_DOLLAR_SLASH_REGEX);
+                                               if (br.equals(GrutTokenTypes.INJECT_START)) {
+                                                braceCount.pop();
+                                                yybegin(afterInjection); return GrutTokenTypes.INJECT_END;
+                                               }
                                              }
                                              while (!braceCount.isEmpty() && GroovyTokenTypes.mLCURLY != braceCount.peek()) {
                                                braceCount.pop();
@@ -567,8 +582,7 @@ BEFORE_TAG_ATTRIBUTES> . {endTemplate(); yypushback(yylength()); }
 
 <IN_TRIPLE_GSTRING> {
   {mGSTRING_TRIPLE_CONTENT} /(\"\"\")?    { return GroovyTokenTypes.mGSTRING_CONTENT; }
-  {mGSTRING_TRIPLE_CONTENT}?
-                     (\" (\")? | \\)      { return GroovyTokenTypes.mGSTRING_CONTENT; }
+  {mGSTRING_TRIPLE_CONTENT}? (\" (\")? | \\)      { return GroovyTokenTypes.mGSTRING_CONTENT; }
 
   "$"                                     {  yybegin(IN_TRIPLE_GSTRING_DOLLAR);
                                              return GroovyTokenTypes.mDOLLAR;}

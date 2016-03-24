@@ -9,4 +9,7 @@ public interface GrutTokenTypes extends GroovyTokenTypes {
     GrutElementType INJECT_START = new GrutElementType("${");
     GrutElementType INJECT_END = new GrutElementType("}");
 
+    GrutElementType LEFT_PASTE_BRACE = new GrutElementType("@{");
+    GrutElementType RIGHT_PASTE_BRACE = new GrutElementType("}@");
+
 }

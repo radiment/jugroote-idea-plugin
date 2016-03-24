@@ -1,5 +1,6 @@
 package com.epam.jugroote.plugin.parser;
 
+import com.epam.jugroote.plugin.psi.GrutElementType;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.LighterASTNode;
 import com.intellij.lang.PsiBuilder;
@@ -17,9 +18,9 @@ import org.jetbrains.plugins.groovy.lang.parser.parsing.statements.imports.Impor
 import org.jetbrains.plugins.groovy.lang.parser.parsing.toplevel.packaging.PackageDefinition;
 import org.jetbrains.plugins.groovy.lang.parser.parsing.util.ParserUtils;
 
+import static com.epam.jugroote.plugin.parser.GrutElementTypes.INJECTION;
+import static com.epam.jugroote.plugin.parser.GrutElementTypes.TEMPLATE;
 import static com.epam.jugroote.plugin.parser.GrutTokenTypes.*;
-import static com.epam.jugroote.plugin.parser.GrutTypes.INJECTION;
-import static com.epam.jugroote.plugin.parser.GrutTypes.TEMPLATE;
 
 public class GrutParser extends GroovyParser {
 
@@ -60,7 +61,7 @@ public class GrutParser extends GroovyParser {
                 builder.error(GroovyBundle.message("separator.expected"));
             }
             if (builder.eof()) break;
-            if (!parser.parseStatementWithImports(builder)) {
+            if (!parser.parseStatementWithImports(builder) && !parseExtStatement(builder)) {
                 ParserUtils.wrapError(builder, GroovyBundle.message("unexpected.symbol"));
             }
         }
@@ -88,21 +89,24 @@ public class GrutParser extends GroovyParser {
 
     @Override
     public boolean parseStatementWithImports(PsiBuilder builder) {
-        return ImportStatement.parse(builder, this) || parseStatement(builder, false) || parseXmlStatement(builder);
+        return ImportStatement.parse(builder, this) || parseStatement(builder, false);
     }
 
     @Override
     protected boolean parseExtendedStatement(PsiBuilder builder) {
-        return parseXmlStatement(builder);
+        return parseExtStatement(builder);
     }
 
-    private boolean parseXmlStatement(PsiBuilder builder) {
+    private boolean parseExtStatement(PsiBuilder builder) {
         IElementType type = builder.getTokenType();
-        if (type == TEMPLATE_TEXT) {
-//            PsiBuilder.Marker template = builder.mark();
+        if (type == LEFT_PASTE_BRACE) {
+            PsiBuilder.Marker template = builder.mark();
             builder.advanceLexer();
-//            template.done(TEMPLATE);
-
+            doWhileNot(builder, RIGHT_PASTE_BRACE);
+            template.done(TEMPLATE);
+            return true;
+        } else if (type == TEMPLATE_TEXT) {
+            builder.advanceLexer();
             return true;
         } else if (type == INJECT_START) {
             PsiBuilder.Marker inject = builder.mark();
@@ -114,5 +118,19 @@ public class GrutParser extends GroovyParser {
         }
 
         return false;
+    }
+
+    private void doWhileNot(PsiBuilder builder, GrutElementType endToken) {
+        while (!builder.eof()) {
+            if (builder.getTokenType() == endToken) {
+                builder.advanceLexer();
+                break;
+            } else {
+                if (!parseExtStatement(builder)) {
+                    builder.error("Unexpected element");
+                    break;
+                }
+            }
+        }
     }
 }

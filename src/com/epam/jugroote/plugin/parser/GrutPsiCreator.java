@@ -6,7 +6,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.tree.IElementType;
 import org.jetbrains.plugins.groovy.lang.parser.GroovyPsiCreator;
 
-import static com.epam.jugroote.plugin.parser.GrutTypes.*;
+import static com.epam.jugroote.plugin.parser.GrutElementTypes.*;
 
 public class GrutPsiCreator {
     public static PsiElement createElement(ASTNode node) {

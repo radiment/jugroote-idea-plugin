@@ -25,7 +25,7 @@ import static com.epam.jugroote.plugin.parser.GrutTokenTypes.*;
 public class GrutParser extends GroovyParser {
 
     public static final TokenSet SEPARATORS = TokenSet.create(
-            GroovyTokenTypes.mNLS, GroovyTokenTypes.mSEMI, TEMPLATE_TEXT);
+            GroovyTokenTypes.mNLS, GroovyTokenTypes.mSEMI);
 
     @Override
     @NotNull
@@ -89,7 +89,7 @@ public class GrutParser extends GroovyParser {
 
     @Override
     public boolean parseStatementWithImports(PsiBuilder builder) {
-        return ImportStatement.parse(builder, this) || parseStatement(builder, false);
+        return ImportStatement.parse(builder, this) || parseStatement(builder, false) || parseExtStatement(builder);
     }
 
     @Override
@@ -106,7 +106,9 @@ public class GrutParser extends GroovyParser {
             template.done(TEMPLATE);
             return true;
         } else if (type == TEMPLATE_TEXT) {
+            PsiBuilder.Marker template = builder.mark();
             builder.advanceLexer();
+            template.done(TEMPLATE);
             return true;
         } else if (type == INJECT_START) {
             PsiBuilder.Marker inject = builder.mark();

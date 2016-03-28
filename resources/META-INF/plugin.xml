@@ -1,12 +1,12 @@
 <idea-plugin version="2">
   <id>com.epam.jugroote.plugin.language</id>
-  <name>Just Groovy Html Template Language plugin</name>
+  <name>Just Groovy Template Language plugin</name>
   <version>1.0</version>
   <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
 
   <description><![CDATA[
-      Enter short description for your plugin here.<br>
-      <em>most HTML tags may be used</em>
+      Groovy template language plugin. GRUT<br>
+      Adds language support for gr files. It works similar to Velocity.
     ]]></description>
 
   <change-notes><![CDATA[
@@ -39,6 +39,10 @@
 
     <lang.fileViewProviderFactory language="grut"
                                   implementationClass="com.epam.jugroote.plugin.psi.GrutFileViewProviderFactory"/>
+
+    <langCodeStyleSettingsProvider
+            implementation="com.epam.jugroote.plugin.codestyle.GrutLanguageCodeStyleSettingsProvider"/>
+    <codeStyleSettingsProvider implementation="com.epam.jugroote.plugin.codestyle.GrutCodeStyleSettingsProvider"/>
 
   </extensions>
 

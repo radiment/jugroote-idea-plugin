@@ -44,6 +44,9 @@
             implementation="com.epam.jugroote.plugin.codestyle.GrutLanguageCodeStyleSettingsProvider"/>
     <codeStyleSettingsProvider implementation="com.epam.jugroote.plugin.codestyle.GrutCodeStyleSettingsProvider"/>
 
+    <lang.formatter language="grut"
+                    implementationClass="com.epam.jugroote.plugin.formatter.GrutFormattingModelBuilder"/>
+
   </extensions>
 
   <actions>

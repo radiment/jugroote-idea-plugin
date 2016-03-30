@@ -8,8 +8,6 @@ import com.intellij.psi.codeStyle.CodeStyleSettingsProvider;
 import com.intellij.psi.codeStyle.CustomCodeStyleSettings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.groovy.codeStyle.GroovyCodeStyleMainPanel;
-import org.jetbrains.plugins.groovy.codeStyle.GroovyCodeStyleSettings;
 
 public class GrutCodeStyleSettingsProvider extends CodeStyleSettingsProvider {
     @NotNull
@@ -18,7 +16,7 @@ public class GrutCodeStyleSettingsProvider extends CodeStyleSettingsProvider {
         return new CodeStyleAbstractConfigurable(settings, originalSettings, "Grut") {
             @Override
             protected CodeStyleAbstractPanel createPanel(CodeStyleSettings settings) {
-                return new GroovyCodeStyleMainPanel(getCurrentSettings(), settings) {};
+                return new GrutCodeStyleMainPanel(getCurrentSettings(), settings);
             }
 
             @Override
@@ -37,6 +35,6 @@ public class GrutCodeStyleSettingsProvider extends CodeStyleSettingsProvider {
     @Nullable
     @Override
     public CustomCodeStyleSettings createCustomSettings(CodeStyleSettings settings) {
-        return new GroovyCodeStyleSettings(settings);
+        return new GrutCodeStyleSettings(settings);
     }
 }

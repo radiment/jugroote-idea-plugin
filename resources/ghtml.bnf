@@ -12,7 +12,7 @@
   elementTypeClass="com.epam.jugroote.plugin.psi.GrutElementType"
   tokenTypeClass="com.epam.jugroote.plugin.psi.GrutTokenType"
 
-  psiImplUtilClass="com.epam.jugroote.plugin.psi.impl.GroovyHtmlPsiImplUtil"
+  psiImplUtilClass="com.epam.jugroote.plugin.psi.impl.GrutPsiImplUtil"
 }
 
 simpleFile ::= item_*

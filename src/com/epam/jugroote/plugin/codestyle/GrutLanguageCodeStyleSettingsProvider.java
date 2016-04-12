@@ -44,33 +44,33 @@ public class GrutLanguageCodeStyleSettingsProvider extends GroovyLanguageCodeSty
             "<!DOCTYPE html>\n" +
                     "<html>\n" +
                     "<head class=\"too\">\n" +
-                    "    <title>${\"ghtml\"}</title>\n" +
+                    "  <title>${\"ghtml\"}</title>\n" +
                     "</head>\n" +
                     "if (binding.hasVariable(\"body\") || binding.hasVariable(\"<test>\")) {\n" +
-                    "  <body class=\"${body}\">\n" +
-                    "    def length = \"test\".length()\n" +
-                    "    ${length}\n" +
-                    "    def bla = \"bla\"\n" +
-                    "    if (body.length() > 0 && body.length() < 15) {\n" +
-                    "        ${body}\n" +
-                    "        ${\"test{$bla</test>\"} \n" +
+                    "<body class=\"${body}\">\n" +
+                    "def length = \"test\".length()\n" +
+                    "${length}\n" +
+                    "def bla = \"bla\"\n" +
+                    "if (body.length() > 0 && body.length() < 15) {\n" +
+                    "${body}\n" +
+                    "${\"test{$bla</test>\"} \n" +
                     "\n" +
-                    "    }\n" +
-                    "  <div class=\"test\">\n" +
-                    "    \n" +
-                    "  </div>\n" +
-                    "  <script type=\"application/javascript\">\n" +
-                    "    @{\n" +
-                    "      var a = ${body};\n" +
-                    "      for (var i = 0; i < 10; i++) {\n" +
+                    "}\n" +
+                    "<div class=\"test\">\n" +
                     "\n" +
-                    "      }\n" +
-                    "    }@\n" +
-                    "    ${body}\n" +
-                    "    def a = 1;\n" +
+                    "</div>\n" +
+                    "<script type=\"application/javascript\">\n" +
+                    "@{\n" +
+                    "var a = ${body};\n" +
+                    "for (var i = 0; i < 10; i++) {\n" +
                     "\n" +
-                    "  </script>\n" +
-                    "  </body>\n" +
+                    "}\n" +
+                    "}@\n" +
+                    "${body}\n" +
+                    "def a = 1;\n" +
+                    "\n" +
+                    "</script>\n" +
+                    "</body>\n" +
                     "}\n" +
                     "</html>\n" +
                     "\n";

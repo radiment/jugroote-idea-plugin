@@ -46,6 +46,8 @@
 
     <lang.formatter language="grut"
                     implementationClass="com.epam.jugroote.plugin.formatter.GrutFormattingModelBuilder"/>
+    <lang.whiteSpaceFormattingStrategy language="grut"
+                                       implementationClass="org.jetbrains.plugins.groovy.formatter.GroovyWhiteSpaceFormattingStrategy"/>
 
   </extensions>
 
